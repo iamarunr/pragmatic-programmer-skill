@@ -1,0 +1,15 @@
+{
+  "name": "workflow-board-benchmark",
+  "version": "1.0.0",
+  "description": "Fullstack Interactive Workflow Board Benchmark",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "build": "tsc --noEmit",
+    "start": "node server.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}

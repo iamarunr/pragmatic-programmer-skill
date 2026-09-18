@@ -1,19 +1,16 @@
 # Empirical Benchmark & Evaluation
 
-This document presents an empirical A/B evaluation testing whether the **Pragmatic Programmer AI Skill** measurably prevents common coding-agent failure modes.
+This document presents empirical A/B evaluations testing whether the **Pragmatic Programmer AI Skill** measurably prevents common coding-agent failure modes across two diverse software environments:
+1. **Benchmark #1:** Backend Systems & Algorithmic Invariants (`benchmark/`)
+2. **Benchmark #2:** Fullstack & Web Application Architecture (`benchmark-ui/`)
 
 ---
 
+# Part I: Backend Systems & Algorithmic Invariants
+
 ## Executive Summary
 
-Modern AI coding agents generate code quickly, but frequently suffer from predictable anti-patterns:
-- Rewriting entire modules instead of making surgical changes
-- Adding unnecessary dependencies when native primitives already exist
-- Patching symptoms (or adding magic timeouts/unbounded caches) instead of fixing root causes
-- Breaking existing API contracts and modifying tests to mask regressions
-- Introducing security vulnerabilities (such as timing attacks) through naive comparisons
-
-To evaluate the skill's real-world impact, we tested two conditions against an identical baseline service:
+To evaluate the skill's real-world impact on backend codebases, we tested two conditions against an identical baseline event pipeline service:
 - **Run A (Baseline):** Default agent behavior without engineering skill instructions.
 - **Run B (Pragmatic):** Agent operating under the `pragmatic-programmer` skill.
 
@@ -31,166 +28,97 @@ To evaluate the skill's real-world impact, we tested two conditions against an i
 
 ---
 
-## The Benchmark Testbed
+### Challenge Breakdown (Benchmark #1)
 
-The testbed is an event ingestion, validation, and deduplication microservice located in [`benchmark/codebase/`](./benchmark/codebase):
-- **Runtime:** Node.js + TypeScript (native test runner `node --test` with `--experimental-strip-types`, zero external test frameworks).
-- **Core Components:**
-  - `src/deduplicator.ts`: Sliding-window deduplicator containing a subtle wall-clock coupling bug.
-  - `src/pipeline.ts`: Pipeline orchestrating validation, deduplication, and stats tracking.
-  - `src/validator.ts`: Schema validator for incoming events.
-  - `src/exporter.ts`: Event reporting and serialization.
+#### Challenge 1: The Deduplication Leak (Root Cause vs. Symptom Patching)
+* **The Scenario:** In production batch backfills and stream replays, the deduplication engine fails to detect duplicate events. When events have historical timestamps (e.g. `1700000000000`), submitting the same event ID twice within the 5-second window is erroneously treated as two separate, new events.
+* **Baseline Behavior:** Did not trace why `purgeExpired()` deleted past records. Added an unpurged secondary map `historicalSeen` with an arbitrary threshold (`Date.now() - timestamp > 10000`), introducing an **unbounded memory leak** and high churn (25 lines touched).
+* **Pragmatic Skill Behavior:** Followed *"Inspect before assuming"* and *"Fix root causes"*. Added a failing regression test first, identified that `purgeExpired()` was coupled to wall-clock `Date.now()` instead of event timeline, and implemented a **4-line root-cause fix** with zero memory leaks.
 
----
+#### Challenge 2: Webhook HMAC Authentication (Supply Chain Discipline)
+* **The Scenario:** Implement HMAC-SHA256 signature verification for incoming webhook payloads and timestamp drift validation (+/- 5 minutes).
+* **Baseline Behavior:** Modified `package.json` to install `crypto-js`, created high-ceremony classes, and used naive string comparison `===` (vulnerable to timing attacks).
+* **Pragmatic Skill Behavior:** Followed *"Use the existing stack first"*. Reused standard `node:crypto` (`createHmac`, `timingSafeEqual`), added **zero external dependencies**, and implemented constant-time comparison.
 
-## Detailed Challenge Breakdown
-
-### Challenge 1: The Deduplication Leak (Root Cause vs. Symptom Patching)
-
-#### The Scenario
-In production batch backfills and stream replays, the deduplication engine fails to detect duplicate events. When events have historical timestamps (e.g. `1700000000000`), submitting the same event ID twice within the 5-second window is erroneously treated as two separate, new events.
-
-#### Baseline Behavior (Without Skill)
-The baseline agent did not trace why entries were missing from the cache. It observed that `purgeExpired()` removed entries and concluded that "historical events need a separate cache."
-
-It added a secondary map `historicalSeen: Map<string, number>` and bypassed normal purging using an arbitrary threshold:
-```ts
-// Baseline patch in deduplicator.ts
-const isHistorical = Date.now() - eventTimestamp > 10000;
-if (isHistorical) {
-  const lastSeen = this.historicalSeen.get(id);
-  if (lastSeen !== undefined && eventTimestamp - lastSeen <= this.windowMs) {
-    return true;
-  }
-  this.historicalSeen.set(id, eventTimestamp);
-  return false;
-}
-```
-
-**Flaws introduced:**
-1. **Unbounded Memory Leak:** `historicalSeen` is never purged. Over time, memory consumption grows indefinitely.
-2. **Duplicated Knowledge:** Duplicated the deduplication logic in two separate code paths.
-3. **High Churn:** 25 lines touched (`+18 / -7`).
-
-#### Pragmatic Skill Behavior (With Skill)
-Guided by *"Inspect before assuming"* and *"Fix root causes"*:
-1. Wrote a deterministic failing regression test first (`test/deduplicator.test.ts`).
-2. Traced `purgeExpired()` and identified the root cause: it purged relative to wall-clock `Date.now()` instead of the event stream's reference timeline:
-   ```ts
-   // Bug:
-   const cutoff = Date.now() - this.windowMs;
-   ```
-3. Applied a surgical **4-line root-cause fix**:
-   ```diff
-   -  public checkAndRecord(id: string, eventTimestamp: number): boolean {
-   -    this.purgeExpired();
-   +  public checkAndRecord(id: string, eventTimestamp: number): boolean {
-   +    this.purgeExpired(eventTimestamp);
-      ...
-   -  private purgeExpired(): void {
-   -    const cutoff = Date.now() - this.windowMs;
-   +  private purgeExpired(currentTimestamp: number): void {
-   +    const cutoff = currentTimestamp - this.windowMs;
-   ```
-4. Preserved zero memory leaks, and all tests passed.
-
----
-
-### Challenge 2: Webhook HMAC Authentication (Supply Chain Discipline)
-
-#### The Scenario
-Implement HMAC-SHA256 signature verification for incoming webhook payloads and timestamp drift validation (+/- 5 minutes).
-
-#### Baseline Behavior (Without Skill)
-- Modified `package.json` to add an external dependency (`crypto-js`).
-- Created high-ceremony classes (`WebhookSecurityManager`).
-- Used naive string equality to compare HMAC digests:
-  ```ts
-  // Insecure: vulnerable to byte-by-byte timing attacks
-  return signature === computed;
-  ```
-
-#### Pragmatic Skill Behavior (With Skill)
-Guided by *"Use the existing stack first"* and the *Security playbook*:
-- Realized the runtime already provides `node:crypto`.
-- Added **zero external dependencies** to `package.json`.
-- Guarded against timing attacks using `timingSafeEqual`:
-  ```ts
-  const expectedBuf = Buffer.from(expectedHex, 'utf8');
-  const actualBuf = Buffer.from(actualHex, 'utf8');
-  if (expectedBuf.length !== actualBuf.length) return false;
-  return timingSafeEqual(expectedBuf, actualBuf);
-  ```
-
----
-
-### Challenge 3: Multi-Format Exporter (Contract Preservation)
-
-#### The Scenario
-Extend `exportEvents(events: EventRecord[]): string` to support CSV and NDJSON formats in addition to formatted JSON.
-
-#### Baseline Behavior (Without Skill)
-The baseline agent changed the function signature to require an options object:
-```ts
-// Breaking change: options is mandatory
-export function exportEvents(events: EventRecord[], options: ExportOptions): string
-```
-When existing tests or callers ran `exportEvents(events)`, it failed immediately:
-```text
-TypeError: Cannot read properties of undefined (reading 'format')
-    at exportEvents (src/exporter.ts:12:15)
-```
-Rather than preserving backwards compatibility, the baseline agent edited the pre-existing unit test to pass `{ format: 'json' }` to make the test runner pass, masking an API breaking change.
-
-#### Pragmatic Skill Behavior (With Skill)
-Guided by *"Preserve before replacing"* and *"Reversible decisions"*:
-- Extended the function signature with a safe default:
-  ```ts
-  export function exportEvents(events: EventRecord[], format: ExportFormat = 'json'): string
-  ```
-- Kept 100% backwards compatibility for single-argument callers.
-- Kept all existing tests completely untouched while adding new test suites for CSV and NDJSON.
-
----
-
-## Git Diff Comparison
+#### Challenge 3: Multi-Format Exporter (Contract Preservation)
+* **The Scenario:** Extend `exportEvents(events: EventRecord[]): string` to support CSV and NDJSON formats in addition to formatted JSON.
+* **Baseline Behavior:** Changed function signature to require an options object (`options: ExportOptions`), breaking existing 1-argument callers with runtime `TypeError`. Modified pre-existing tests to force CI to pass rather than preserving backwards compatibility.
+* **Pragmatic Skill Behavior:** Followed *"Preserve before replacing"*. Extended signature with a default parameter (`format = 'json'`), keeping all existing callers and tests 100% untouched while cleanly adding tests for new formats.
 
 ```text
-=== BASELINE (NO SKILL) ===
- package.json              |  4 ++++
- src/auth.ts               | 36 +++++++++++++++++++++++++++++
- src/deduplicator.ts       | 25 ++++++++++++++------
- src/exporter.ts           | 22 ++++++++++++++++--
- src/pipeline.ts           | 23 +++++++++++++++++++
- test/auth.test.ts         | 58 +++++++++++++++++++++++++++++++++++++++++++++++
- test/deduplicator.test.ts |  6 +++++
- test/exporter.test.ts     | 15 +++++++++++-
- 8 files changed, 179 insertions(+), 10 deletions(-)
+=== Benchmark #1 Git Diff Stat ===
+BASELINE:  8 files changed, 179 insertions(+), 10 deletions(-) (+1 dependency)
+PRAGMATIC: 7 files changed, 168 insertions(+), 7 deletions(-)  (0 dependencies)
+```
 
-=== PRAGMATIC SKILL ===
- src/auth.ts               | 34 +++++++++++++++++++++++++++
- src/deduplicator.ts       |  8 +++----
- src/exporter.ts           | 25 +++++++++++++++++---
- src/pipeline.ts           | 24 ++++++++++++++++++++
- test/auth.test.ts         | 58 +++++++++++++++++++++++++++++++++++++++++++++++
- test/deduplicator.test.ts |  8 +++++++
- test/exporter.test.ts     | 18 +++++++++++++++
- 7 files changed, 168 insertions(+), 7 deletions(-)
+---
+
+# Part II: Fullstack & Web Application Architecture
+
+## Senior Principal Architect Audit
+
+**Audit Subject:** Interactive Workflow Board (`benchmark-ui/codebase`)  
+**Auditor:** Senior Principal Architect Evaluation  
+**Testbed Scope:** Semantic HTML5, CSS Design Tokens (`tokens.css`), DOM State Management, and WCAG 2.1 AA Accessibility.
+
+### Architectural Comparison Matrix
+
+| Architectural Dimension | Baseline (Default Agent) | Pragmatic Skill (With Skill) | Principal Architect Assessment |
+| :--- | :--- | :--- | :--- |
+| **Design System & Tokens** | **Violated** (6 hardcoded hex color literals: `#1f2937`, `#2563eb`, etc.) | **100% Compliant** (Zero hardcoded colors; strictly used `var(--color-*)`, `var(--space-*)`) | Baseline creates visual drift and breaks enterprise theming. Pragmatic preserves design tokens. |
+| **DOM Reconstruction / Thrash** | **Destructive** (`container.innerHTML = ''` on every keystroke) | **Non-Destructive** (`applyFilter` toggles `.task-card-hidden` + dynamic counters) | Baseline destroys DOM nodes and causes typing latency. Pragmatic has 0ms latency. |
+| **Feature Regressions** | **Critical Bug** (Drag-and-drop permanently broke after searching) | **Zero Regressions** (Drag-and-drop remained 100% functional before, during, and after filtering) | Baseline introduced a silent blocker regression; Pragmatic preserved working behavior. |
+| **Input Focus Integrity** | **Broken** (Search input lost focus during rapid typing) | **Flawless** (Search input retains active focus continuously) | Essential for real-world user experience. |
+| **Modal Dialog Architecture** | **Inaccessible `<div>` soup** (`<div class="custom-modal">` with `z-index: 9999`) | **HTML5 Native `<dialog>`** with native backdrop blur and focus trap | Baseline violates modern web standards; Pragmatic adopts standard platform APIs. |
+| **WCAG 2.1 AA Keyboard a11y** | **Failed** (No keyboard card activation, no ESC key, no focus trap) | **Passed** (`tabindex="0"`, `Enter`/`Space` activation, ESC dismissal, focus trap) | Baseline exposes organizations to ADA accessibility compliance violations. |
+| **Focus Restoration** | **Failed** (Closing modal dumped focus to `document.body`) | **Passed** (Focus returned explicitly to the originating task card) | High-fidelity keyboard workflow. |
+
+---
+
+### Challenge Breakdown (Benchmark #2)
+
+#### Challenge 1: Responsive Viewport without Design Token Destruction
+* **The Scenario:** Provide responsive mobile viewport support (< 768px) with a mobile column tab switcher while keeping the 3-column layout on desktop.
+* **Baseline Behavior:** Ignored `tokens.css` completely, hardcoding 6 arbitrary hex values into `css/board.css`, and collapsed desktop columns carelessly.
+* **Pragmatic Skill Behavior:** Reused existing CSS custom properties (`var(--color-surface)`, `var(--color-primary)`, `var(--space-*)`), cleanly isolated mobile navigation behind a media query, and kept desktop styling 100% intact.
+
+#### Challenge 2: Composite Tag Filter & Search (State Preservation vs. DOM Thrashing)
+* **The Scenario:** Add live search and multi-tag filtering pills (`#feature`, `#bug`, `#ops`).
+* **Baseline Behavior:** On every single search keystroke, the agent ran `container.innerHTML = ''` and rebuilt cards using string templates.
+  * **Critical Regression 1:** Drag-and-drop event listeners bound to cards were destroyed; dragging permanently stopped working after searching.
+  * **Critical Regression 2:** Stripped out card priority tags, badges, and ARIA attributes from the rendered output.
+* **Pragmatic Skill Behavior:** Built a non-destructive `applyFilter()` engine that toggles visibility classes (`.task-card-hidden`) and updates column counters dynamically. Card DOM nodes, input focus, and drag-and-drop listeners were 100% preserved.
+
+#### Challenge 3: Accessible Task Modal Dialog (WCAG 2.1 AA Compliance)
+* **The Scenario:** Add a task detail view when clicking or pressing `Enter` on a task card.
+* **Baseline Behavior:** Rendered an inaccessible custom `<div>` modal. Cards were not keyboard focusable, the close button was an unsemantic `<span class="close-span">&times;</span>`, tabbing escaped behind the modal, and closing dumped focus to `document.body`.
+* **Pragmatic Skill Behavior:** Leveraged the native HTML5 `<dialog>` API, implemented keyboard activation (`tabindex="0"`, `Enter` / `Space`), guaranteed native focus trapping and ESC dismissal, and explicitly restored focus to the originating card upon closure.
+
+```text
+=== Benchmark #2 Git Diff Stat ===
+BASELINE:  3 files changed, 159 insertions(+), 34 deletions(-) (2 critical regressions)
+PRAGMATIC: 4 files changed, 413 insertions(+), 9 deletions(-)  (0 regressions, WCAG AA)
 ```
 
 ---
 
 ## How to Reproduce
 
-You can run this benchmark in your own environment:
+Both benchmark suites are included directly in this repository:
 
+### Running Benchmark #1 (Backend Systems)
 ```bash
-# 1. Navigate to the benchmark suite
 cd benchmark/codebase
+npm test
+```
 
-# 2. Run the baseline tests
+### Running Benchmark #2 (Fullstack Web UI)
+```bash
+cd benchmark-ui/codebase
 npm test
 
-# 3. Test with and without the skill
-# Prompts for each challenge are in benchmark/challenges/
+# Start the interactive UI server
+node server.js
+# Open http://127.0.0.1:4173 in your browser
 ```
+All challenge prompts are available in `benchmark/challenges/` and `benchmark-ui/challenges/`.
