@@ -1,3 +1,20 @@
-The Pragmatic Programmer.pdf
-*.pdf
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build & Dist
+dist/
+build/
+*.tsbuildinfo
+
+# OS & IDE
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs
+*.log
+npm-debug.log*
