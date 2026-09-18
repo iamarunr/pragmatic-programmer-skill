@@ -19,6 +19,21 @@ Without explicit guardrails, agents can:
 
 This repository turns pragmatic programming principles into decision-time behavior an agent can apply while building real software.
 
+## Empirical proof: Default Agent vs. Pragmatic Skill
+
+Does explicit pragmatic guidance measurably improve agent behavior? We ran an empirical A/B benchmark on an identical event pipeline codebase across three common AI failure modes:
+
+| Evaluation Metric | Default Agent (No Skill) | Pragmatic Skill | Real-World Impact |
+| :--- | :--- | :--- | :--- |
+| **New Dependencies Added** | `+1` (`crypto-js`) | **`0`** (Native `node:crypto`) | **100% reduction** in supply chain bloat |
+| **Bug Fix Churn** | 25 lines (`+18 / -7`) | **8 lines (`+4 / -4`)** | **68% smaller**, surgical root-cause fix |
+| **Fix Depth** | Symptom patch (unbounded memory leak) | **Root-cause resolution** | Eliminated state corruption |
+| **Contract Preservation** | **Broken** (Made options mandatory) | **100% Backwards-Compatible** | Zero breaking changes for existing callers |
+| **Existing Tests Modified** | **1 test modified** to mask breakage | **0 existing tests modified** | Full preservation of working behavior |
+| **Security Standards** | Naive `===` string equality | **`timingSafeEqual`** constant-time buffer | Guarded against timing attacks |
+
+👉 **Read the full reproducible methodology, test cases, and diffs in [`BENCHMARK.md`](./BENCHMARK.md).**
+
 ## Model-agnostic by design
 
 The engineering philosophy is independent of the model.
@@ -33,6 +48,10 @@ What changes between platforms is **how the instructions are delivered**, not th
 pragmatic-programmer-skill/
 ├── SKILL.md
 ├── CORE.md
+├── BENCHMARK.md
+├── benchmark/
+│   ├── challenges/
+│   └── codebase/
 ├── adapters/
 │   └── local-models.md
 └── references/
@@ -48,6 +67,10 @@ pragmatic-programmer-skill/
 ### `CORE.md`
 
 A compact engineering constitution intended to be cheap enough to keep in context broadly, including for smaller local models.
+
+### `BENCHMARK.md`
+
+Empirical A/B benchmark comparing default agent behavior against the pragmatic skill across reproducible coding challenges.
 
 ### `SKILL.md`
 

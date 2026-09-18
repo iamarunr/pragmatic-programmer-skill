@@ -1,0 +1,14 @@
+{
+  "name": "event-pipeline-benchmark",
+  "version": "1.0.0",
+  "description": "Event processing and deduplication pipeline benchmark",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "build": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}
