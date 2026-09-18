@@ -4,16 +4,6 @@ A model-agnostic engineering skill inspired by the principles of *The Pragmatic 
 
 The goal is not to make an agent quote software-engineering philosophy. The goal is to make it behave like a pragmatic engineer: inspect before assuming, preserve before replacing, prefer small reversible changes, fix root causes, control scope, and verify before claiming success.
 
----
-
-## 🚀 Quick Links
-* **[How to Use in Any Existing Repo](HOW_TO_USE.md)** — Step-by-step instructions and ready-to-use prompts for testing and fixing any codebase.
-* **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — Rigorous A/B empirical evaluation of agent performance with vs. without the skill.
-* **[Full Skill Definition (SKILL.md)](SKILL.md)** — Full skill routing, core stance, decision-time checks, and anti-patterns.
-* **[Core Constitution (CORE.md)](CORE.md)** — Compact rules intended for broader context and local models.
-
----
-
 ## Why this exists
 
 Modern coding agents can write a lot of code very quickly. That makes engineering judgment more important, not less.
@@ -29,97 +19,6 @@ Without explicit guardrails, agents can:
 
 This repository turns pragmatic programming principles into decision-time behavior an agent can apply while building real software.
 
----
-
-## 🛠️ How to Deploy & Use in Any Existing Repo
-
-### 1. Installation
-
-#### Global Installation (Available across all projects)
-```bash
-mkdir -p ~/.gemini/config/skills
-cp -r .agents/skills/pragmatic-programmer ~/.gemini/config/skills/
-```
-
-#### Local Workspace Installation (Committed to a specific project)
-```bash
-mkdir -p /path/to/target-repo/.agents/skills
-cp -r .agents/skills/pragmatic-programmer /path/to/target-repo/.agents/skills/
-```
-
-### 2. Configure the Repository Rule
-
-In your target repository's root, add this to `AGENTS.md` (or `GEMINI.md`):
-
-```markdown
-# Project Instructions
-
-## Engineering Philosophy
-For non-trivial software changes, default to the `pragmatic-programmer` skill.
-Prefer evidence over assumptions, surgical changes over rewrites, existing conventions, and verification before declaring success. Apply silently.
-```
-
-### 3. Test & Surgically Fix Any Codebase (Recommended Prompt)
-
-Copy and paste this prompt to test and fix an existing repository:
-
-```text
-Apply the pragmatic-programmer skill principles to inspect and fix this repository:
-
-1. GATHER EVIDENCE FIRST:
-   - Inspect the repo configuration and run the test suite, typechecker, and linter.
-   - Collect exact error outputs and failure traces (do not assume or guess).
-
-2. ROOT CAUSE ANALYSIS:
-   - Trace failures to their root causes before making any code modifications.
-
-3. SURGICAL FIXES (ZERO-COLLATERAL-DAMAGE):
-   - Make the smallest, most targeted edits possible to resolve the issue.
-   - Preserve existing public API contracts and backwards compatibility.
-   - DO NOT alter existing tests simply to make CI green—existing test assertions reflect contracts that must be preserved.
-   - DO NOT introduce new third-party dependencies if the existing runtime/stdlib can accomplish it.
-   - Maintain the existing architecture, code style, and naming conventions.
-
-4. VERIFICATION:
-   - Re-run the full test suite, linter, and build commands to verify the fix.
-   - Confirm zero regressions across unaffected modules.
-
-5. SUMMARY:
-   - Briefly summarize: (a) evidence found, (b) root cause, (c) files touched, and (d) verification output.
-```
-
-*(See **[HOW_TO_USE.md](HOW_TO_USE.md)** for additional prompts: daily 1-liner, fragility audit, and safe feature additions).*
-
----
-
-## Empirical proof: Default Agent vs. Pragmatic Skill
-
-Does explicit pragmatic guidance measurably improve agent behavior? We tested agents across two rigorous empirical benchmark suites:
-
-### 1. Backend Systems & Algorithmic Invariants ([`benchmark/`](./benchmark))
-Tested on an event ingestion & deduplication engine across clock coupling bugs, HMAC verification, and format extensions:
-
-| Evaluation Metric | Default Agent (No Skill) | Pragmatic Skill | Real-World Impact |
-| :--- | :--- | :--- | :--- |
-| **New Dependencies Added** | `+1` (`crypto-js`) | **`0`** (Native `node:crypto`) | **100% reduction** in supply chain bloat |
-| **Bug Fix Churn** | 25 lines (`+18 / -7`) | **8 lines (`+4 / -4`)** | **68% smaller**, surgical root-cause fix |
-| **Fix Depth** | Symptom patch (unbounded memory leak) | **Root-cause resolution** | Eliminated state corruption |
-| **Contract Preservation** | **Broken** (Made options mandatory) | **100% Backwards-Compatible** | Zero breaking changes for existing callers |
-| **Security Standards** | Naive `===` string equality | **`timingSafeEqual`** constant-time buffer | Guarded against timing attacks |
-
-### 2. Fullstack & Web Application Architecture ([`benchmark-ui/`](./benchmark-ui))
-Audited by a Senior Principal Architect on an interactive workflow board across responsive layout, real-time filtering, and modal accessibility:
-
-| Architectural Dimension | Default Agent (No Skill) | Pragmatic Skill | Principal Architect Verdict |
-| :--- | :--- | :--- | :--- |
-| **Visual Regressions** | **Severe** (Broken layout, overlapping cards) | **Zero** (100% responsive preservation) | Enterprise design system adherence |
-| **Filter State Synchronization** | **Regressed** (Broke drag-and-drop state) | **Robust** (Decoupled store & view sync) | Clean state isolation |
-| **WCAG 2.1 AA Accessibility** | **Failed** (Inaccessible `<div>` modal) | **Passed** (HTML5 `<dialog>`, focus trap, ESC) | Enterprise accessibility compliance |
-
-👉 **Read the full reproducible methodology, test cases, and diffs in [`BENCHMARK.md`](./BENCHMARK.md).**
-
----
-
 ## Model-agnostic by design
 
 The engineering philosophy is independent of the model.
@@ -134,19 +33,6 @@ What changes between platforms is **how the instructions are delivered**, not th
 pragmatic-programmer-skill/
 ├── SKILL.md
 ├── CORE.md
-├── HOW_TO_USE.md           # Guide for deploying and using in any repository
-├── BENCHMARK.md            # Empirical A/B benchmark evaluation
-├── AGENTS.md               # Standard agent directive
-├── .agents/skills/         # Native Antigravity skill directory
-│   └── pragmatic-programmer/
-├── benchmark/              # Benchmark #1: Backend systems suite
-│   ├── challenges/
-│   ├── codebase/
-│   └── results/
-├── benchmark-ui/           # Benchmark #2: Fullstack & Web UI suite
-│   ├── challenges/
-│   ├── codebase/
-│   └── results/
 ├── adapters/
 │   └── local-models.md
 └── references/
@@ -162,10 +48,6 @@ pragmatic-programmer-skill/
 ### `CORE.md`
 
 A compact engineering constitution intended to be cheap enough to keep in context broadly, including for smaller local models.
-
-### `BENCHMARK.md`
-
-Empirical A/B benchmark comparing default agent behavior against the pragmatic skill across reproducible coding challenges.
 
 ### `SKILL.md`
 
