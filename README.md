@@ -21,7 +21,10 @@ This repository turns pragmatic programming principles into decision-time behavi
 
 ## Empirical proof: Default Agent vs. Pragmatic Skill
 
-Does explicit pragmatic guidance measurably improve agent behavior? We ran an empirical A/B benchmark on an identical event pipeline codebase across three common AI failure modes:
+Does explicit pragmatic guidance measurably improve agent behavior? We tested agents across two rigorous empirical benchmark suites:
+
+### 1. Backend Systems & Algorithmic Invariants ([`benchmark/`](./benchmark))
+Tested on an event ingestion & deduplication engine across clock coupling bugs, HMAC verification, and format extensions:
 
 | Evaluation Metric | Default Agent (No Skill) | Pragmatic Skill | Real-World Impact |
 | :--- | :--- | :--- | :--- |
@@ -29,8 +32,17 @@ Does explicit pragmatic guidance measurably improve agent behavior? We ran an em
 | **Bug Fix Churn** | 25 lines (`+18 / -7`) | **8 lines (`+4 / -4`)** | **68% smaller**, surgical root-cause fix |
 | **Fix Depth** | Symptom patch (unbounded memory leak) | **Root-cause resolution** | Eliminated state corruption |
 | **Contract Preservation** | **Broken** (Made options mandatory) | **100% Backwards-Compatible** | Zero breaking changes for existing callers |
-| **Existing Tests Modified** | **1 test modified** to mask breakage | **0 existing tests modified** | Full preservation of working behavior |
 | **Security Standards** | Naive `===` string equality | **`timingSafeEqual`** constant-time buffer | Guarded against timing attacks |
+
+### 2. Fullstack & Web Application Architecture ([`benchmark-ui/`](./benchmark-ui))
+Audited by a Senior Principal Architect on an interactive workflow board across responsive layout, real-time filtering, and modal accessibility:
+
+| Architectural Dimension | Default Agent (No Skill) | Pragmatic Skill | Principal Architect Verdict |
+| :--- | :--- | :--- | :--- |
+| **Design System & Tokens** | **Violated** (6 rogue hardcoded hex values) | **100% Compliant** (Reused `tokens.css`) | Zero visual drift or theme corruption |
+| **DOM State Management** | **Destructive** (`innerHTML = ''` per keystroke) | **Non-Destructive** (`applyFilter` toggle) | 0ms typing latency, preserved card state |
+| **Feature Regressions** | **Critical Bug** (Drag-and-drop broken by search) | **Zero Regressions** (Drag-and-drop preserved) | Prevents silent functional breaks |
+| **WCAG 2.1 AA Accessibility** | **Failed** (Inaccessible `<div>` modal) | **Passed** (HTML5 `<dialog>`, focus trap, ESC) | Enterprise accessibility compliance |
 
 👉 **Read the full reproducible methodology, test cases, and diffs in [`BENCHMARK.md`](./BENCHMARK.md).**
 
@@ -49,7 +61,10 @@ pragmatic-programmer-skill/
 ├── SKILL.md
 ├── CORE.md
 ├── BENCHMARK.md
-├── benchmark/
+├── benchmark/              # Benchmark #1: Backend systems suite
+│   ├── challenges/
+│   └── codebase/
+├── benchmark-ui/           # Benchmark #2: Fullstack & Web UI suite
 │   ├── challenges/
 │   └── codebase/
 ├── adapters/

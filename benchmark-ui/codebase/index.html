@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Board — Engineering Task Management</title>
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/board.css">
+</head>
+<body>
+  <header class="app-header" role="banner">
+    <div class="brand">
+      <h1>Workflow Board</h1>
+      <span class="brand-badge">Enterprise Edition</span>
+    </div>
+
+    <div class="header-filters" role="search" aria-label="Filter tasks">
+      <input type="search" id="filter-search" class="search-input" placeholder="Search tasks by title or description..." aria-label="Search tasks">
+      <div id="filter-tags" class="filter-pills" role="group" aria-label="Filter by tag">
+        <button type="button" class="pill-btn" data-tag="feature" aria-pressed="false">#feature</button>
+        <button type="button" class="pill-btn" data-tag="bug" aria-pressed="false">#bug</button>
+        <button type="button" class="pill-btn" data-tag="ops" aria-pressed="false">#ops</button>
+      </div>
+    </div>
+
+    <div class="board-actions">
+      <button type="button" id="btn-add-task" class="btn btn-primary" aria-label="Add new task">
+        + New Task
+      </button>
+    </div>
+  </header>
+
+  <main class="app-main" role="main">
+    <!-- Responsive Mobile Tabs (< 768px) -->
+    <nav id="mobile-column-tabs" class="mobile-tabs" role="tablist" aria-label="Select board column">
+      <button type="button" role="tab" class="tab-btn active" aria-selected="true" data-tab="todo">To Do</button>
+      <button type="button" role="tab" class="tab-btn" aria-selected="false" data-tab="in_progress">In Progress</button>
+      <button type="button" role="tab" class="tab-btn" aria-selected="false" data-tab="done">Done</button>
+    </nav>
+
+    <div id="board-container" class="board-container" aria-label="Task board">
+      <!-- Columns rendered dynamically by board.ts -->
+    </div>
+  </main>
+
+  <!-- Accessible Modal Dialog (WCAG 2.1 AA Compliant) -->
+  <dialog id="task-dialog" class="task-dialog" aria-labelledby="dialog-task-title">
+    <form method="dialog" class="dialog-content">
+      <header class="dialog-header">
+        <h2 id="dialog-task-title" class="dialog-title">Task Details</h2>
+        <button type="submit" class="btn-close" aria-label="Close dialog">&times;</button>
+      </header>
+      <div id="dialog-body" class="dialog-body">
+        <!-- Content populated dynamically -->
+      </div>
+      <footer class="dialog-footer">
+        <button type="submit" class="btn btn-secondary">Close</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script type="module" src="./src/app.ts"></script>
+</body>
+</html>
