@@ -1,39 +1,45 @@
 # Pragmatic Engineering Core
 
-A condensed version of [SKILL.md](SKILL.md) for agents and harnesses that cannot load skills, including smaller local models. It is short enough to keep in context for every task. The rules are the same; if the two ever differ, SKILL.md is authoritative.
+A condensed version of [SKILL.md](SKILL.md) for agents and harnesses that cannot load skills, including smaller local models. It is short enough to keep in context for every task. The principles are the same; if the two ever differ, SKILL.md is authoritative.
 
-## Always-on rules
+## Principles
 
-1. **Inspect before assuming.** Read the real code, callers, tests, config, schemas, versions, and errors before changing anything.
-2. **Preserve before replacing.** Treat working behavior as intentional. Prefer a surgical change over a rewrite.
-3. **Keep public contracts stable.** Extend signatures, APIs, CSS tokens, and DOM structure compatibly. Never edit existing tests just to make a breaking change pass.
-4. **Use the existing stack first.** Check the standard library, the platform, and existing dependencies before adding a new one.
-5. **Fix root causes.** Do not hide symptoms with retries, sleeps, swallowed errors, side caches, or magic constants. If something works but you cannot explain why, keep investigating.
-6. **Keep knowledge DRY.** Each business fact or rule has one authoritative home.
-7. **Keep components orthogonal.** A change to one concern should not force edits in unrelated modules.
-8. **Control scope.** Change only what the request needs.
-9. **Prefer reversible decisions.** Add seams where a boundary is real; avoid speculative abstraction.
-10. **Verify the actual behavior.** Compiling or looking plausible is not evidence. Use the cheapest reliable check: a regression test, a build, a browser check, or logs.
+1. **Take responsibility.** Own the outcome; report problems and anything unverified early, with a proposed fix.
+2. **Think about your work.** Question assumptions, including the request's approach.
+3. **Keep your knowledge current.** Check installed versions and current docs instead of relying on memory.
+4. **DRY.** Each piece of knowledge (rules, config, schemas, docs) has one authoritative home.
+5. **Orthogonality.** A change to one concern should not force edits in unrelated modules.
+6. **Design by contract.** Make preconditions, postconditions, and invariants explicit; fail fast at boundaries.
+7. **Program close to the domain.** Use the problem domain's language in names and abstractions.
+8. **Prefer reversible decisions.** Add seams where a boundary is real; avoid speculative abstraction.
+9. **Tracer bullets.** For new multi-layer work, get a thin end-to-end path running first.
+10. **Prototype to learn.** Resolve uncertainty with a throwaway experiment outside production code.
+11. **Good enough software.** Define done criteria from the request; stop when met.
+12. **Automate repetitive work.** Use the project's scripts; script steps you repeat; suggest repo automation rather than adding it unasked.
+13. **Test ruthlessly.** Test to find defects: boundaries, bad input, failure paths, regressions.
+14. **Do not program by coincidence.** Explain why a fix works; rely on documented behavior.
+15. **No broken windows.** Fix or report rot in code you touch; never add skipped tests or suppressed warnings to get green.
+16. **Refactor early, within scope.** Make a hard change easy first (separately), then make the change.
 
-## Existing-project workflow
+## In an existing codebase
 
-Before a non-trivial change:
-
-1. Locate the current implementation and read its callers, dependencies, tests, and conventions.
-2. Identify the smallest safe change surface.
-3. Implement the smallest coherent change.
-4. Verify the requested behavior.
-5. Inspect the diff for anything the request did not need.
+- Inspect before assuming: read the code, callers, tests, config, and errors first.
+- Preserve before replacing: prefer a surgical change over a rewrite.
+- Keep public contracts stable: extend compatibly; never edit existing tests to fit a breaking change.
+- Use the existing stack first: standard library and current dependencies before new ones.
+- Control scope: change only what the request needs.
+- Verify the actual behavior: compiling or looking plausible is not evidence.
 
 ## Done check
 
 Before declaring a non-trivial task done, confirm internally:
 
-- The requested behavior was verified directly.
-- Existing callers, tests, and unrelated behavior still work; no existing test was edited to fit a breaking change.
-- No new dependency where the existing stack already covers it.
+- The done criteria are met and verified directly.
+- Existing callers, tests, and unrelated behavior still work.
 - You can explain why the change works.
-- No duplicated knowledge, new coupling, or magic constants.
+- No duplicated knowledge, new coupling, magic constants, or new broken windows.
+- No unnecessary new dependency, and no prototype code in production paths.
 - **Nothing changed that the request did not need.**
+- Anything unverified or risky is stated for the user.
 
-If an item fails, fix it and verify again. Apply these rules silently; surface only findings that materially affect the implementation, risk, architecture, scope, or a user decision.
+If an item fails, fix it and verify again. Apply these principles silently; surface only findings that materially affect the implementation, risk, architecture, scope, or a user decision.
