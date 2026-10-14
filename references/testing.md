@@ -18,7 +18,7 @@ Prioritize meaningful boundaries and states: empty, one, many, malformed, unauth
 
 ## Avoid
 
-- tests that only prove mocks behave as configured
+- tests that only prove mocks behave as configured (heavy mocking usually signals tight coupling worth inspecting)
 - asserting implementation details that make safe refactors expensive
 - chasing line coverage without meaningful assertions
 - creating a large test harness for a trivial visual or configuration change

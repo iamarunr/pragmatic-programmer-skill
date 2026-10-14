@@ -9,7 +9,7 @@ The goal is not to make an agent quote software-engineering philosophy. The goal
 ## 🚀 Quick Links
 * **[How to Use in Any Existing Repo](HOW_TO_USE.md)** — Step-by-step instructions and ready-to-use prompts for testing and fixing any codebase.
 * **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — Rigorous A/B empirical evaluation of agent performance with vs. without the skill.
-* **[Full Skill Definition (SKILL.md)](SKILL.md)** — Full skill routing, core stance, decision-time checks, and anti-patterns.
+* **[Full Skill Definition (SKILL.md)](SKILL.md)** — Core rules, playbook routing, done checklist, and stop signals.
 * **[Core Constitution (CORE.md)](CORE.md)** — Compact rules intended for broader context and local models.
 
 ---
@@ -137,8 +137,10 @@ pragmatic-programmer-skill/
 ├── HOW_TO_USE.md           # Guide for deploying and using in any repository
 ├── BENCHMARK.md            # Empirical A/B benchmark evaluation
 ├── AGENTS.md               # Standard agent directive
-├── .agents/skills/         # Native Antigravity skill directory
-│   └── pragmatic-programmer/
+├── .agents/skills/         # Installable skill package (generated, do not edit)
+│   └── pragmatic-programmer/   # SKILL.md + references/ only
+├── scripts/
+│   └── sync-skill.sh       # Rebuilds the package from the root files
 ├── benchmark/              # Benchmark #1: Backend systems suite
 │   ├── challenges/
 │   ├── codebase/
@@ -152,6 +154,8 @@ pragmatic-programmer-skill/
 └── references/
     ├── architecture.md
     ├── debugging.md
+    ├── dependencies.md
+    ├── examples.md
     ├── integrations.md
     ├── refactoring.md
     ├── security.md
@@ -161,7 +165,7 @@ pragmatic-programmer-skill/
 
 ### `CORE.md`
 
-A compact engineering constitution intended to be cheap enough to keep in context broadly, including for smaller local models.
+Not part of the installed skill package. A compact engineering constitution for other tools and harnesses, short enough to keep in context broadly, including for smaller local models.
 
 ### `BENCHMARK.md`
 
@@ -169,11 +173,13 @@ Empirical A/B benchmark comparing default agent behavior against the pragmatic s
 
 ### `SKILL.md`
 
-The full skill: routing, core stance, decision-time checks, anti-patterns, and final self-check.
+The skill an agent loads: core rules, workflow, a table routing each task type to its playbook, the done checklist, and stop signals.
+
+The root `SKILL.md` and `references/` are the single source of truth. After editing them, run `scripts/sync-skill.sh` to regenerate `.agents/skills/pragmatic-programmer/` (`--check` verifies it is current).
 
 ### `references/`
 
-Focused playbooks that can be loaded only when relevant. This avoids spending context on a long engineering manifesto for every small CSS or copy change.
+Focused playbooks that can be loaded only when relevant, plus `examples.md` with before/after cases from the benchmark. This avoids spending context on a long engineering manifesto for every small CSS or copy change.
 
 ### `adapters/`
 
