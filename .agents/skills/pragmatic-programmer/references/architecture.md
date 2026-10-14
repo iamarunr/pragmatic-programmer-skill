@@ -12,6 +12,13 @@ Use this when choosing system boundaries, data flow, modules, services, framewor
 - Use a tracer bullet: prove a thin end-to-end path before building every layer in depth.
 - Prefer one deployable system over distributed complexity until independent deployment or scaling is actually needed.
 
+## Tracer bullets vs. prototypes
+
+- **Tracer bullet:** a thin, production-quality path through every layer that you keep and widen. Use it to prove the architecture works end to end.
+- **Prototype:** a throwaway experiment that answers one question, such as whether a library handles a case or whether an approach performs well enough. Keep it outside production code, record what you learned, then delete it.
+
+Do not let a prototype quietly become the implementation.
+
 ## Ask before committing
 
 - What concrete problem does this boundary solve?
