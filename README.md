@@ -35,13 +35,20 @@ This repository turns pragmatic programming principles into decision-time behavi
 
 ### 1. Installation
 
-#### Global Installation (Available across all projects)
+#### Claude Code
+```bash
+mkdir -p ~/.claude/skills
+cp -R .agents/skills/pragmatic-programmer ~/.claude/skills/
+```
+For a single repository, copy it into `/path/to/target-repo/.claude/skills/` instead.
+
+#### Antigravity / Gemini: Global Installation (Available across all projects)
 ```bash
 mkdir -p ~/.gemini/config/skills
 cp -r .agents/skills/pragmatic-programmer ~/.gemini/config/skills/
 ```
 
-#### Local Workspace Installation (Committed to a specific project)
+#### Antigravity / Gemini: Local Workspace Installation (Committed to a specific project)
 ```bash
 mkdir -p /path/to/target-repo/.agents/skills
 cp -r .agents/skills/pragmatic-programmer /path/to/target-repo/.agents/skills/
@@ -187,20 +194,18 @@ Guidance for delivering the same engineering philosophy through different agent/
 
 ## Core rules
 
-The short version:
+The short version (the same rules as [`SKILL.md`](SKILL.md) and [`CORE.md`](CORE.md)):
 
 1. Inspect before assuming.
 2. Preserve before replacing.
-3. Make the smallest correct change.
-4. Verify, do not hallucinate.
+3. Keep public contracts stable.
+4. Use the existing stack first.
 5. Fix root causes.
-6. Do not program by coincidence.
-7. Keep knowledge DRY.
-8. Keep components orthogonal.
+6. Keep knowledge DRY.
+7. Keep components orthogonal.
+8. Control scope.
 9. Prefer reversible decisions.
-10. Use the existing stack first.
-11. Match verification to the task.
-12. Do not declare success from plausibility.
+10. Verify the actual behavior.
 
 And one especially important rule for AI agents:
 

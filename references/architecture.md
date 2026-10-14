@@ -6,6 +6,7 @@ Use this when choosing system boundaries, data flow, modules, services, framewor
 
 - Start from current requirements and credible change, not imagined future scale.
 - Prefer explicit data flow and small, understandable interfaces.
+- Keep components orthogonal: a change to one concern should not ripple into unrelated modules.
 - Keep domain knowledge independent from transport, framework, and vendor details when that separation has real value.
 - Favor reversible choices where uncertainty is high.
 - Use a tracer bullet: prove a thin end-to-end path before building every layer in depth.
