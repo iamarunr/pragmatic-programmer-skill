@@ -8,8 +8,8 @@ The goal is not to make an agent quote software-engineering philosophy. The goal
 
 ## 🚀 Quick Links
 * **[How to Use in Any Existing Repo](HOW_TO_USE.md)** — Step-by-step instructions and ready-to-use prompts for testing and fixing any codebase.
-* **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — Rigorous A/B empirical evaluation of agent performance with vs. without the skill.
-* **[Full Skill Definition (SKILL.md)](SKILL.md)** — Full skill routing, core stance, decision-time checks, and anti-patterns.
+* **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — A/B comparison of agent behavior with vs. without the skill (one run per setup, graded by hand).
+* **[Full Skill Definition (SKILL.md)](SKILL.md)** — The 16 principles, codebase guardrails, playbook routing, done checklist, and stop signals.
 * **[Core Constitution (CORE.md)](CORE.md)** — Compact rules intended for broader context and local models.
 
 ---
@@ -35,13 +35,20 @@ This repository turns pragmatic programming principles into decision-time behavi
 
 ### 1. Installation
 
-#### Global Installation (Available across all projects)
+#### Claude Code
+```bash
+mkdir -p ~/.claude/skills
+cp -R .agents/skills/pragmatic-programmer ~/.claude/skills/
+```
+For a single repository, copy it into `/path/to/target-repo/.claude/skills/` instead.
+
+#### Antigravity / Gemini: Global Installation (Available across all projects)
 ```bash
 mkdir -p ~/.gemini/config/skills
 cp -r .agents/skills/pragmatic-programmer ~/.gemini/config/skills/
 ```
 
-#### Local Workspace Installation (Committed to a specific project)
+#### Antigravity / Gemini: Local Workspace Installation (Committed to a specific project)
 ```bash
 mkdir -p /path/to/target-repo/.agents/skills
 cp -r .agents/skills/pragmatic-programmer /path/to/target-repo/.agents/skills/
@@ -137,8 +144,10 @@ pragmatic-programmer-skill/
 ├── HOW_TO_USE.md           # Guide for deploying and using in any repository
 ├── BENCHMARK.md            # Empirical A/B benchmark evaluation
 ├── AGENTS.md               # Standard agent directive
-├── .agents/skills/         # Native Antigravity skill directory
-│   └── pragmatic-programmer/
+├── .agents/skills/         # Installable skill package (generated, do not edit)
+│   └── pragmatic-programmer/   # SKILL.md + references/ only
+├── scripts/
+│   └── sync-skill.sh       # Rebuilds the package from the root files
 ├── benchmark/              # Benchmark #1: Backend systems suite
 │   ├── challenges/
 │   ├── codebase/
@@ -152,6 +161,8 @@ pragmatic-programmer-skill/
 └── references/
     ├── architecture.md
     ├── debugging.md
+    ├── dependencies.md
+    ├── examples.md
     ├── integrations.md
     ├── refactoring.md
     ├── security.md
@@ -161,7 +172,7 @@ pragmatic-programmer-skill/
 
 ### `CORE.md`
 
-A compact engineering constitution intended to be cheap enough to keep in context broadly, including for smaller local models.
+Not part of the installed skill package. A compact engineering constitution for other tools and harnesses, short enough to keep in context broadly, including for smaller local models.
 
 ### `BENCHMARK.md`
 
@@ -169,34 +180,44 @@ Empirical A/B benchmark comparing default agent behavior against the pragmatic s
 
 ### `SKILL.md`
 
-The full skill: routing, core stance, decision-time checks, anti-patterns, and final self-check.
+The skill an agent loads: the principles, codebase guardrails, workflow, a table routing each task type to its playbook, the done checklist, and stop signals.
+
+The root `SKILL.md` and `references/` are the single source of truth. After editing them, run `scripts/sync-skill.sh` to regenerate `.agents/skills/pragmatic-programmer/` (`--check` verifies it is current).
 
 ### `references/`
 
-Focused playbooks that can be loaded only when relevant. This avoids spending context on a long engineering manifesto for every small CSS or copy change.
+Focused playbooks that can be loaded only when relevant, plus `examples.md` with before/after cases from the benchmark. This avoids spending context on a long engineering manifesto for every small CSS or copy change.
 
 ### `adapters/`
 
 Guidance for delivering the same engineering philosophy through different agent/model setups.
 
-## Core rules
+## Core principles
 
-The short version:
+The skill encodes the core principles of *The Pragmatic Programmer* (2nd ed., David Thomas and Andrew Hunt) as decision-time behavior for coding agents. The same 16 principles appear in [`SKILL.md`](SKILL.md) and, condensed, in [`CORE.md`](CORE.md).
 
-1. Inspect before assuming.
-2. Preserve before replacing.
-3. Make the smallest correct change.
-4. Verify, do not hallucinate.
-5. Fix root causes.
-6. Do not program by coincidence.
-7. Keep knowledge DRY.
-8. Keep components orthogonal.
-9. Prefer reversible decisions.
-10. Use the existing stack first.
-11. Match verification to the task.
-12. Do not declare success from plausibility.
+| Principle | What the agent does | Detail |
+|---|---|---|
+| Take responsibility | Reports problems, risks, and unverified work plainly, with a proposed fix | Done checklist |
+| Think about your work | Questions assumptions, including the request's approach | SKILL.md |
+| Knowledge portfolio | Checks installed versions and current docs instead of memory | SKILL.md |
+| DRY | One authoritative home for each rule, config value, schema, or doc | SKILL.md |
+| Orthogonality | Keeps changes from rippling into unrelated modules | `references/architecture.md` |
+| Design by contract | States preconditions, postconditions, invariants; fails fast at boundaries | SKILL.md |
+| Program close to the domain | Uses the domain's language in names and abstractions | SKILL.md |
+| Reversibility | Adds seams only where boundaries are real | `references/architecture.md` |
+| Tracer bullets | Builds a thin end-to-end path first for new multi-layer work | `references/architecture.md` |
+| Prototype to learn | Resolves uncertainty with throwaway experiments outside production code | `references/architecture.md` |
+| Good enough software | Derives done criteria from the request and stops when met | Done checklist |
+| Automate | Uses project scripts; scripts repeated steps; suggests CI rather than adding it | SKILL.md |
+| Test ruthlessly | Tests boundaries, bad input, failure paths; regression tests for bugs | `references/testing.md` |
+| No programming by coincidence | Explains why a fix works; never accepts "the error went away" | `references/debugging.md` |
+| No broken windows | Fixes or reports rot in touched code; never adds skipped tests or suppressed warnings | SKILL.md |
+| Refactor early and often | Makes a hard change easy first, as a separate step, within scope | `references/refactoring.md` |
 
-And one especially important rule for AI agents:
+For existing codebases, the skill adds agent-specific guardrails: inspect before assuming, preserve before replacing, keep public contracts stable, use the existing stack first, control scope, and verify actual behavior.
+
+The most important rule for AI agents:
 
 > **Did I change more than necessary?**
 
@@ -258,9 +279,9 @@ Do not narrate routine application of the skill.
 
 ## Claude Code
 
-Use the repository as a Claude Code skill or import the relevant files through your project's persistent Claude instructions.
+Install the skill package as described under **How to Deploy & Use in Any Existing Repo** above. Copy only `.agents/skills/pragmatic-programmer/`, not the whole repository, so the benchmark code stays out of the skill.
 
-The same two-level strategy works well: keep `CORE.md` broadly available and use the detailed playbooks for task-specific work.
+Claude Code loads skills natively, so it reads `SKILL.md` when a task matches and opens playbooks only as needed. Do not also put `CORE.md` in `CLAUDE.md`: Claude would read the same principles twice. `CORE.md` is for tools that cannot load skills.
 
 ## Local / open-source models
 
