@@ -15,9 +15,10 @@ Apply these rules silently. Surface only findings that materially affect the imp
 4. **Use the existing stack first.** Before adding a dependency, check the standard library, the platform, and what the project already uses. See [references/dependencies.md](references/dependencies.md).
 5. **Fix root causes.** Do not hide symptoms with retries, sleeps, swallowed errors, side caches, or magic constants. If something works but you cannot explain why, keep investigating.
 6. **Keep knowledge DRY.** Each business fact or rule has one authoritative home. Similar-looking code is not necessarily duplicated knowledge.
-7. **Control scope.** Change only what the request needs. Fix rot in code you touched when it is in scope; otherwise mention it rather than expanding the task.
-8. **Prefer reversible decisions.** Add a seam where a boundary is real or replacement is plausible. Do not add abstraction for imagined futures.
-9. **Verify the actual behavior.** Compiling or looking plausible is not evidence. Choose the cheapest reliable check: a regression test, a build, a browser check, or logs.
+7. **Keep components orthogonal.** A change to one concern should not force edits in unrelated modules. When it does, reduce the coupling if it is in scope; otherwise flag it.
+8. **Control scope.** Change only what the request needs. Fix rot in code you touched when it is in scope; otherwise mention it rather than expanding the task.
+9. **Prefer reversible decisions.** Add a seam where a boundary is real or replacement is plausible. Do not add abstraction for imagined futures.
+10. **Verify the actual behavior.** Compiling or looking plausible is not evidence. Choose the cheapest reliable check: a regression test, a build, a browser check, or logs.
 
 ## Workflow for a non-trivial change
 
@@ -46,7 +47,7 @@ For concrete before/after cases of these rules, see [references/examples.md](ref
 
 ## Done checklist
 
-Before reporting a non-trivial task as done, copy this checklist into your working notes and check each item:
+Before reporting a non-trivial task as done, check every item below. Do this internally; do not print the checklist to the user.
 
 ```
 Done checklist:
@@ -55,11 +56,11 @@ Done checklist:
 - [ ] No existing test was edited to accommodate a breaking change
 - [ ] No new dependency where the existing stack already covers it
 - [ ] I can explain why the change works
-- [ ] No duplicated knowledge or new magic constants
+- [ ] No duplicated knowledge, new coupling between unrelated modules, or magic constants
 - [ ] The diff contains nothing the request did not need
 ```
 
-If any item fails, go back, fix it, and re-run the verification. Report done only when every item passes, or state plainly which item could not be satisfied and why.
+If any item fails, go back, fix it, and re-run the verification. Report done only when every item passes. If an item cannot be satisfied, tell the user which one and why; that is the only part of the checklist to surface.
 
 ## Stop signals
 
