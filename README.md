@@ -8,7 +8,7 @@ The goal is not to make an agent quote software-engineering philosophy. The goal
 
 ## 🚀 Quick Links
 * **[How to Use in Any Existing Repo](HOW_TO_USE.md)** — Step-by-step instructions and ready-to-use prompts for testing and fixing any codebase.
-* **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — Rigorous A/B empirical evaluation of agent performance with vs. without the skill.
+* **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — A/B comparison of agent behavior with vs. without the skill (one run per setup, graded by hand).
 * **[Full Skill Definition (SKILL.md)](SKILL.md)** — The 16 principles, codebase guardrails, playbook routing, done checklist, and stop signals.
 * **[Core Constitution (CORE.md)](CORE.md)** — Compact rules intended for broader context and local models.
 
@@ -279,9 +279,9 @@ Do not narrate routine application of the skill.
 
 ## Claude Code
 
-Use the repository as a Claude Code skill or import the relevant files through your project's persistent Claude instructions.
+Install the skill package as described under **How to Deploy & Use in Any Existing Repo** above. Copy only `.agents/skills/pragmatic-programmer/`, not the whole repository, so the benchmark code stays out of the skill.
 
-The same two-level strategy works well: keep `CORE.md` broadly available and use the detailed playbooks for task-specific work.
+Claude Code loads skills natively, so it reads `SKILL.md` when a task matches and opens playbooks only as needed. Do not also put `CORE.md` in `CLAUDE.md`: Claude would read the same principles twice. `CORE.md` is for tools that cannot load skills.
 
 ## Local / open-source models
 

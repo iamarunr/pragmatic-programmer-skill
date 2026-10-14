@@ -140,7 +140,7 @@ Implement [feature description] using the pragmatic-programmer skill:
 
 ---
 
-## 4. What the Skill Guarantees Behind the Scenes
+## 4. What the Skill Is Designed to Prevent
 
 | Antipattern Without Skill | Pragmatic Skill Behavior |
 | :--- | :--- |
