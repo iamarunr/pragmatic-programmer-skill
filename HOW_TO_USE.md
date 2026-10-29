@@ -6,31 +6,52 @@ This guide explains how to deploy the **Pragmatic Programmer Skill** to any exis
 
 ## 1. Quick Deployment (Choose One)
 
-### Option A: Global Installation (Recommended)
-Installing globally makes the skill automatically available across **all** repositories you open in Antigravity without needing to copy files into every project.
+Clone this repository first. All commands below run from its root and copy the skill package in `.agents/skills/pragmatic-programmer/` (`SKILL.md` plus `references/`).
 
-Run this in your terminal:
+```bash
+git clone https://github.com/iamarunr/pragmatic-programmer-skill.git
+cd pragmatic-programmer-skill
+```
+
+### Claude Code
+
+Available in every project:
+```bash
+mkdir -p ~/.claude/skills
+cp -R .agents/skills/pragmatic-programmer ~/.claude/skills/
+```
+
+Committed to one repository, so teammates get it too:
+```bash
+mkdir -p /path/to/your-target-repo/.claude/skills
+cp -R .agents/skills/pragmatic-programmer /path/to/your-target-repo/.claude/skills/
+```
+
+Claude Code loads the skill automatically when a task matches its description.
+
+### Antigravity / Gemini
+
+Available in every project:
 ```bash
 mkdir -p ~/.gemini/config/skills
-cp -r /Users/nareshkumar/Documents/Projects/Test-Pragmattic/.agents/skills/pragmatic-programmer ~/.gemini/config/skills/
+cp -R .agents/skills/pragmatic-programmer ~/.gemini/config/skills/
 ```
 
-### Option B: Local Repository Installation
-If you prefer committing the skill directly into a specific repository (e.g. for team members or CI integration):
+Committed to one repository:
 ```bash
-# Navigate to your target repository
-cd /path/to/your-target-repo
-
-# Create the agents skill directory and copy
-mkdir -p .agents/skills
-cp -r /Users/nareshkumar/Documents/Projects/Test-Pragmattic/.agents/skills/pragmatic-programmer .agents/skills/
+mkdir -p /path/to/your-target-repo/.agents/skills
+cp -R .agents/skills/pragmatic-programmer /path/to/your-target-repo/.agents/skills/
 ```
+
+### Other agents and local models
+
+Use [`CORE.md`](CORE.md) as an always-on instruction file and load individual playbooks from `references/` when relevant. See [`adapters/local-models.md`](adapters/local-models.md).
 
 ---
 
 ## 2. Configure the Repository Rule
 
-In your target repository's root, create or update **`AGENTS.md`** (or `GEMINI.md`) with the following instruction:
+In your target repository's root, create or update **`AGENTS.md`** (or `CLAUDE.md` for Claude Code, `GEMINI.md` for Gemini) with the following instruction:
 
 ```markdown
 # Project Instructions
@@ -119,7 +140,7 @@ Implement [feature description] using the pragmatic-programmer skill:
 
 ---
 
-## 4. What the Skill Guarantees Behind the Scenes
+## 4. What the Skill Is Designed to Prevent
 
 | Antipattern Without Skill | Pragmatic Skill Behavior |
 | :--- | :--- |
@@ -134,4 +155,4 @@ Implement [feature description] using the pragmatic-programmer skill:
 ## 5. Verification & Benchmark Evidence
 
 To inspect empirical benchmark scorecards comparing agent behavior with and without this skill across real-world challenges, see:
-- [scorecard.md](file:///Users/nareshkumar/Documents/Projects/Test-Pragmattic/benchmark/results/scorecard.md)
+- [scorecard.md](benchmark/results/scorecard.md)
