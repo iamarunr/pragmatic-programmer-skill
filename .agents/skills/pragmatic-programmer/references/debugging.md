@@ -13,6 +13,7 @@ Use this when diagnosing failures, regressions, flaky behavior, or unexplained s
 7. Verify the original failure no longer occurs.
    If a change seems to fix it but you cannot explain the mechanism, revert or isolate it and keep investigating.
 8. Check likely regressions.
+9. Check what the bug already left behind: stored records, stuck state, users who missed something. Decide whether the fix repairs it, and say so either way.
 
 ## Verification
 

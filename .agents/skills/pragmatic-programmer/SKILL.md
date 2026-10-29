@@ -1,6 +1,6 @@
 ---
 name: pragmatic-programmer
-description: Applies The Pragmatic Programmer's principles to coding work — responsibility, DRY, orthogonality, tracer bullets, prototypes, design by contract, no broken windows, good-enough software, domain language, automation, ruthless testing, continuous refactoring, and no programming by coincidence. Inspects before changing, makes the smallest correct change, fixes root causes, reuses the existing stack, preserves contracts, and verifies before claiming done. Use for non-trivial work in an existing codebase such as fixing bugs, debugging failures, refactoring, adding features, choosing libraries or architecture, API/database/CSV integrations, auth and security changes, frontend/UI changes, writing tests, or code review. Skip for trivial edits and non-code writing.
+description: Applies The Pragmatic Programmer's principles to coding work — responsibility, DRY, orthogonality, tracer bullets, prototypes, small steps, design by contract, no broken windows, good-enough software, domain language, automation, ruthless testing, continuous refactoring, and no programming by coincidence. Inspects before changing, makes the smallest correct change, fixes root causes, reuses the existing stack, preserves contracts, and verifies before claiming done. Use for non-trivial work in an existing codebase such as fixing bugs, debugging failures, refactoring, adding features, choosing libraries or architecture, API/database/CSV integrations, auth and security changes, frontend/UI changes, writing tests, or code review. Skip for trivial edits and non-code writing.
 ---
 
 # Pragmatic Programmer
@@ -12,12 +12,12 @@ Apply these principles silently. Surface only findings that materially affect th
 **Attitude**
 
 1. **Take responsibility.** Own the outcome. Report problems, risks, and anything you could not verify early and plainly, each with a proposed fix. Do not blame tools, frameworks, or existing code, and do not hide a failure behind a confident summary.
-2. **Think about your work.** Do not run on autopilot. Question assumptions, including the approach the request implies; if a safer or simpler approach exists, say so before building.
+2. **Think about your work.** Do not run on autopilot. Question assumptions, including the approach the request implies; if a safer or simpler approach exists, say so before building. When a request is ambiguous, resolve it toward the user's underlying goal (for a bug report, that includes the case they actually hit) and state the decision.
 3. **Keep your knowledge current.** Check the installed versions and current documentation of the libraries you use instead of relying on memory. Distinguish what you know from what you assume.
 
 **Design**
 
-4. **DRY.** Every piece of knowledge has one authoritative home: business rules, configuration, schemas, constants, and documentation, not just code. Similar-looking code is not necessarily duplicated knowledge.
+4. **DRY.** Every piece of knowledge has one authoritative home: business rules, configuration, schemas, constants, and documentation, not just code. Similar-looking code is not necessarily duplicated knowledge. When behavior changes, find every place that states it (docs, UI and help text, error messages, comments) and update or remove the copies.
 5. **Orthogonality.** A change to one concern should not force edits in unrelated modules. When it does, reduce the coupling if it is in scope; otherwise flag it.
 6. **Design by contract.** Make expectations explicit: what a component requires (preconditions), what it guarantees (postconditions), and what must stay true (invariants). Validate at boundaries and fail fast with a clear error rather than continuing in a bad state.
 7. **Program close to the domain.** Name things and shape abstractions in the problem domain's language and the project's glossary, not after incidental mechanics.
@@ -29,13 +29,14 @@ Apply these principles silently. Surface only findings that materially affect th
 10. **Prototype to learn.** When a library, API, or approach is uncertain, answer the question with a small throwaway experiment outside production code. Delete it or clearly label it; never ship a prototype as the solution.
 11. **Good enough software.** Derive done criteria from the request and stop when they are met. Do not gold-plate, and do not ship below the quality the request requires.
 12. **Automate repetitive work.** Use the project's existing scripts for tests, lint, format, type-check, and build. If you repeat a mechanical step, script it for the session rather than doing it by hand. Suggest adding automation to the repo (scripts, CI, hooks) rather than adding it unasked.
+13. **Do not outrun your headlights.** Take small steps and get feedback after each one (run it, test it) before taking the next. The larger or less certain the step, the sooner you check.
 
 **Quality**
 
-13. **Test ruthlessly.** Test to find defects, not to show the code works: boundaries, malformed input, failure paths. Add a regression test for each behavioral bug when practical, and keep code testable.
-14. **Do not program by coincidence.** Understand why the code works. Rely on documented guarantees, not accidental behavior. A fix is not done because the error disappeared; explain the mechanism.
-15. **Do not live with broken windows.** In code you touch, fix misleading names, dead code, ignored warnings, and hacks when it is in scope; otherwise report them. Never add new ones, such as a skipped test or a suppressed warning, to get green.
-16. **Refactor early and often, within scope.** When the code you must change is hard to change, first refactor it in a separate behavior-preserving step, then make the change. Do not refactor areas the task does not touch.
+14. **Test ruthlessly.** Test to find defects, not to show the code works: boundaries, malformed input, failure paths. Add a regression test for each behavioral bug when practical, confirm it fails without the fix, and keep code testable.
+15. **Do not program by coincidence.** Understand why the code works. Rely on documented guarantees, not accidental behavior. A fix is not done because the error disappeared; explain the mechanism. Watch for hidden coupling to time and order: two clocks assumed to agree, timestamps assumed unique or ordered, tests that pass only because they run fast.
+16. **Do not live with broken windows.** In code you touch, fix misleading names, dead code, ignored warnings, and hacks when it is in scope; otherwise report them. Never add new ones, such as a skipped test or a suppressed warning, to get green.
+17. **Refactor early and often, within scope.** When the code you must change is hard to change, first refactor it in a separate behavior-preserving step, then make the change. Do not refactor areas the task does not touch.
 
 ## Working in an existing codebase
 
@@ -43,6 +44,7 @@ Apply these principles silently. Surface only findings that materially affect th
 - **Preserve before replacing.** Treat working behavior as intentional. Prefer a surgical change over a rewrite.
 - **Keep public contracts stable.** Do not break existing signatures, API shapes, CSS tokens, or DOM structure that other code depends on. Extend compatibly (optional parameters with defaults, new fields, new classes). Never edit existing tests just to make a breaking change pass.
 - **Use the existing stack first.** Check the standard library, the platform, and existing dependencies before adding one. See [references/dependencies.md](references/dependencies.md).
+- **Account for existing state.** Data, records, and users already shaped by the old behavior (persisted state, caches, queued jobs) must keep working. A bug fix should also repair what the bug already affected, where practical.
 - **Control scope.** Change only what the request needs.
 - **Verify the actual behavior.** Compiling or looking plausible is not evidence. Choose the cheapest reliable check: a regression test, a build, a browser check, or logs.
 
@@ -80,6 +82,9 @@ Before reporting a non-trivial task as done, check every item below. Do this int
 Done checklist:
 - [ ] The done criteria are met and verified directly (test, build, browser, or logs), not by plausibility
 - [ ] Existing callers, tests, and unrelated behavior still work; no existing test edited to fit a breaking change
+- [ ] Existing data and users in the old state still work, and a bug fix repairs what it can
+- [ ] Each new regression test fails without the fix
+- [ ] Docs, UI text, and messages that describe the changed behavior now match it
 - [ ] I can explain why the change works
 - [ ] No duplicated knowledge, new coupling, magic constants, or new broken windows
 - [ ] No new dependency where the existing stack already covers it
@@ -99,6 +104,7 @@ Stop and reconsider when you notice:
 - a wrapper around a library with no real boundary behind it
 - swallowed errors, silent retries, unexplained sleeps, or magic thresholds
 - a fix you cannot explain, or "it works now" without knowing why
+- a fix that works only if two clocks, timestamps, or orderings happen to agree
 - a skipped test, suppressed warning, or TODO added to get green
 - feature, refactor, and unrelated cleanup mixed in one change
 - tests that only verify mocks
