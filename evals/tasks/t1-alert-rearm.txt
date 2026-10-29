@@ -1,0 +1,1 @@
+I set an alert target of $1,000 on a product in my price tracker. I got an email when it dropped to $899. Then the price went back up to $1,099 for a couple of weeks, and last week it dropped to $949, but I never got an email. Can you fix this?

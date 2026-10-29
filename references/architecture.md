@@ -12,6 +12,13 @@ Use this when choosing system boundaries, data flow, modules, services, framewor
 - Use a tracer bullet: prove a thin end-to-end path before building every layer in depth.
 - Prefer one deployable system over distributed complexity until independent deployment or scaling is actually needed.
 
+## Decoupling
+
+- **Tell, don't ask.** Ask an object to do the work rather than pulling its state out and deciding for it elsewhere.
+- **Do not chain through strangers.** `order.customer.address.city` couples the caller to three structures; expose what the caller needs instead.
+- **Avoid shared mutable state.** Globals, singletons, and module-level caches couple everything that touches them; pass what code needs explicitly.
+- **Watch temporal coupling.** If two steps must happen in order, or two clocks must agree, make that explicit in the code instead of relying on it.
+
 ## Tracer bullets vs. prototypes
 
 - **Tracer bullet:** a thin, production-quality path through every layer that you keep and widen. Use it to prove the architecture works end to end.
