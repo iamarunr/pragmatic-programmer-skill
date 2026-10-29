@@ -6,7 +6,7 @@ Use this for authentication, authorization, secrets, sessions, sensitive data, v
 
 - Minimize attack surface.
 - Grant the least privilege needed.
-- Validate untrusted input at boundaries.
+- Treat all external and cross-service input as untrusted, and validate it at boundaries.
 - Use established, maintained security primitives.
 - Keep secrets out of source, logs, URLs, and client-visible bundles.
 - Fail safely when authorization or validation is uncertain.

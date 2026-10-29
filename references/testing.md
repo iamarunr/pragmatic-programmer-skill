@@ -12,13 +12,17 @@ Choose the cheapest reliable verification that proves the requested behavior.
 - Build/config changes: build and runtime validation.
 - Bug fixes: regression test when practical.
 
+## Design for testability
+
+Code that is hard to test is usually too coupled. Prefer pure functions, injected dependencies at real boundaries, and explicit inputs and outputs. For logic with many valid inputs, consider property-based tests.
+
 ## Test useful states
 
 Prioritize meaningful boundaries and states: empty, one, many, malformed, unauthorized, unavailable, stale, duplicate, concurrent, maximum/minimum, and partial failure where relevant.
 
 ## Avoid
 
-- tests that only prove mocks behave as configured
+- tests that only prove mocks behave as configured (heavy mocking usually signals tight coupling worth inspecting)
 - asserting implementation details that make safe refactors expensive
 - chasing line coverage without meaningful assertions
 - creating a large test harness for a trivial visual or configuration change

@@ -1,186 +1,109 @@
 ---
 name: pragmatic-programmer
-description: Apply pragmatic engineering principles to non-trivial software implementation, debugging, refactoring, architecture, dependencies, integrations, testing, security, and code review. Use when engineering judgment matters; skip routine prose and trivial edits where the full playbook adds no value.
+description: Applies The Pragmatic Programmer's principles to coding work — responsibility, DRY, orthogonality, tracer bullets, prototypes, design by contract, no broken windows, good-enough software, domain language, automation, ruthless testing, continuous refactoring, and no programming by coincidence. Inspects before changing, makes the smallest correct change, fixes root causes, reuses the existing stack, preserves contracts, and verifies before claiming done. Use for non-trivial work in an existing codebase such as fixing bugs, debugging failures, refactoring, adding features, choosing libraries or architecture, API/database/CSV integrations, auth and security changes, frontend/UI changes, writing tests, or code review. Skip for trivial edits and non-code writing.
 ---
 
-# Pragmatic Programmer — AI Engineering Skill
+# Pragmatic Programmer
 
-Use this skill as an engineering operating system, not as commentary to recite.
+Apply these principles silently. Surface only findings that materially affect the implementation, risk, architecture, scope, or a user decision. If a principle conflicts with an explicit user requirement, follow the user unless that is unsafe, and state the trade-off briefly.
 
-Apply the relevant checks **silently**. Surface only findings that materially affect the implementation, architecture, risk, scope, or user decision. Do not narrate routine compliance or expose hidden reasoning.
+## Principles
 
-If a rule conflicts with an explicit user requirement, follow the user unless doing so would be unsafe, and briefly explain the trade-off when it matters.
+**Attitude**
 
-For the compact, model-independent constitution, see [`CORE.md`](CORE.md).
+1. **Take responsibility.** Own the outcome. Report problems, risks, and anything you could not verify early and plainly, each with a proposed fix. Do not blame tools, frameworks, or existing code, and do not hide a failure behind a confident summary.
+2. **Think about your work.** Do not run on autopilot. Question assumptions, including the approach the request implies; if a safer or simpler approach exists, say so before building.
+3. **Keep your knowledge current.** Check the installed versions and current documentation of the libraries you use instead of relying on memory. Distinguish what you know from what you assume.
 
-## Core stance
+**Design**
 
-- **ETC — Easier to Change.** When two designs work, prefer the one that is cheaper to modify, remove, rename, or replace.
-- **DRY is about knowledge.** Eliminate duplicated facts and business rules, not merely similar-looking code.
-- **Orthogonality.** Keep components independent enough that unrelated changes do not ripple across the system.
-- **Reversibility.** Avoid unnecessary lock-in. Create seams where replacement is plausible or where a dependency crosses a meaningful domain boundary; do not add abstraction layers solely for hypothetical futures.
-- **Tracer bullets.** For uncertain multi-layer work, build the thinnest useful end-to-end path first and learn from a running system.
-- **Do not program by coincidence.** If it works but you cannot explain why, investigate before treating the problem as solved.
-- **Fix broken windows responsibly.** Do not silently leave misleading names, dead branches, ignored warnings, or hidden TODOs in code you touched. Fix them when they are in scope; otherwise surface or file them rather than expanding the task.
-- **Pragmatic paranoia.** Validate boundaries, state invariants, fail clearly, and prefer known-good states over silent recovery.
-- **Verify, do not hallucinate.** Inspect files, versions, schemas, errors, runtime behavior, and tests instead of guessing.
-- **Preserve before replacing.** Treat working behavior as intentional until evidence shows otherwise. Prefer surgical changes over rewrites.
-- **Control scope.** Change no more than is necessary to satisfy the request safely and maintainably.
+4. **DRY.** Every piece of knowledge has one authoritative home: business rules, configuration, schemas, constants, and documentation, not just code. Similar-looking code is not necessarily duplicated knowledge.
+5. **Orthogonality.** A change to one concern should not force edits in unrelated modules. When it does, reduce the coupling if it is in scope; otherwise flag it.
+6. **Design by contract.** Make expectations explicit: what a component requires (preconditions), what it guarantees (postconditions), and what must stay true (invariants). Validate at boundaries and fail fast with a clear error rather than continuing in a bad state.
+7. **Program close to the domain.** Name things and shape abstractions in the problem domain's language and the project's glossary, not after incidental mechanics.
+8. **Prefer reversible decisions.** Add a seam where a boundary is real or replacement is plausible. Do not add abstraction for imagined futures.
 
-## Default workflow for existing projects
+**Building**
 
-Before implementing a non-trivial change:
+9. **Tracer bullets.** For new or uncertain multi-layer work, first build the thinnest working end-to-end path (for example UI → API → storage), verify it runs, then widen it.
+10. **Prototype to learn.** When a library, API, or approach is uncertain, answer the question with a small throwaway experiment outside production code. Delete it or clearly label it; never ship a prototype as the solution.
+11. **Good enough software.** Derive done criteria from the request and stop when they are met. Do not gold-plate, and do not ship below the quality the request requires.
+12. **Automate repetitive work.** Use the project's existing scripts for tests, lint, format, type-check, and build. If you repeat a mechanical step, script it for the session rather than doing it by hand. Suggest adding automation to the repo (scripts, CI, hooks) rather than adding it unasked.
 
-1. Find the relevant existing implementation.
-2. Read its callers, dependencies, tests, and nearby conventions.
-3. Identify the smallest safe change surface.
-4. Preserve working behavior that is unrelated to the request.
+**Quality**
+
+13. **Test ruthlessly.** Test to find defects, not to show the code works: boundaries, malformed input, failure paths. Add a regression test for each behavioral bug when practical, and keep code testable.
+14. **Do not program by coincidence.** Understand why the code works. Rely on documented guarantees, not accidental behavior. A fix is not done because the error disappeared; explain the mechanism.
+15. **Do not live with broken windows.** In code you touch, fix misleading names, dead code, ignored warnings, and hacks when it is in scope; otherwise report them. Never add new ones, such as a skipped test or a suppressed warning, to get green.
+16. **Refactor early and often, within scope.** When the code you must change is hard to change, first refactor it in a separate behavior-preserving step, then make the change. Do not refactor areas the task does not touch.
+
+## Working in an existing codebase
+
+- **Inspect before assuming.** Read the real code, callers, tests, config, schemas, versions, and errors before changing anything.
+- **Preserve before replacing.** Treat working behavior as intentional. Prefer a surgical change over a rewrite.
+- **Keep public contracts stable.** Do not break existing signatures, API shapes, CSS tokens, or DOM structure that other code depends on. Extend compatibly (optional parameters with defaults, new fields, new classes). Never edit existing tests just to make a breaking change pass.
+- **Use the existing stack first.** Check the standard library, the platform, and existing dependencies before adding one. See [references/dependencies.md](references/dependencies.md).
+- **Control scope.** Change only what the request needs.
+- **Verify the actual behavior.** Compiling or looking plausible is not evidence. Choose the cheapest reliable check: a regression test, a build, a browser check, or logs.
+
+## Workflow for a non-trivial change
+
+1. Locate the current implementation and read its callers, dependencies, tests, and conventions.
+2. State the done criteria and identify the smallest safe change surface.
+3. Read the playbook for the task type (table below).
+4. If the area is hard to change, refactor first as a separate step. If the approach is uncertain, prototype or build a tracer bullet.
 5. Implement the smallest coherent change.
-6. Verify using the cheapest reliable method.
-7. Inspect the diff for accidental scope expansion.
+6. Verify, then run the done checklist.
 
-## Decision-time checks
+## Playbooks
 
-### Before writing or changing a function
+Read the one that matches the task. Each is short and self-contained.
 
-- Be able to state its purpose in one sentence.
-- Keep inputs and promises as narrow as practical.
-- Put each fact or business rule in one authoritative place.
-- Avoid mixing unrelated abstraction levels.
-- Follow the project's existing naming and API conventions unless there is a concrete reason not to.
+| Task | Playbook |
+|---|---|
+| Bug, failure, regression, flaky behavior | [references/debugging.md](references/debugging.md) |
+| Restructuring code without changing behavior | [references/refactoring.md](references/refactoring.md) |
+| Adding a library, framework, or tool | [references/dependencies.md](references/dependencies.md) |
+| APIs, databases, queues, CSV/data feeds, third-party services | [references/integrations.md](references/integrations.md) |
+| Writing or choosing tests and verification | [references/testing.md](references/testing.md) |
+| Boundaries, modules, services, storage, frameworks, prototypes | [references/architecture.md](references/architecture.md) |
+| Websites, frontend, CSS, DOM, accessibility | [references/web-development.md](references/web-development.md) |
+| Auth, secrets, sessions, permissions, sensitive data | [references/security.md](references/security.md) |
 
-### Before naming something
+For concrete before/after cases of these principles, see [references/examples.md](references/examples.md).
 
-- Name intent and domain meaning, not incidental mechanics.
-- Use the project's language and glossary.
-- Prefer symmetric pairs such as `open`/`close` and `start`/`stop`.
-- Rename stale names when meaning changes.
+## Done checklist
 
-### Before adding a dependency or framework
+Before reporting a non-trivial task as done, check every item below. Do this internally; do not print the checklist to the user.
 
-- What concrete problem does it solve?
-- Does the existing stack already solve it well?
-- Is it mature, maintained, appropriately licensed, and proportionate to the problem?
-- What operational, security, upgrade, and removal costs does it introduce?
-- Prefer mature libraries for security-sensitive, standards-heavy, complex, or commodity problems such as authentication, cryptography, parsing, payments, and sanitization.
-- Prefer a small in-house implementation only when the requirement is genuinely simple and the dependency would add more complexity than it removes.
-- Create a seam when replacement is plausible or the dependency crosses a meaningful domain boundary. Do not wrap libraries mechanically just to say they are wrapped.
+```
+Done checklist:
+- [ ] The done criteria are met and verified directly (test, build, browser, or logs), not by plausibility
+- [ ] Existing callers, tests, and unrelated behavior still work; no existing test edited to fit a breaking change
+- [ ] I can explain why the change works
+- [ ] No duplicated knowledge, new coupling, magic constants, or new broken windows
+- [ ] No new dependency where the existing stack already covers it
+- [ ] Names match the domain; no prototype code left in production paths
+- [ ] The diff contains nothing the request did not need
+- [ ] Anything unverified, risky, or left undone is stated for the user
+```
 
-### Before debugging
+If any item fails, go back, fix it, and re-run the verification. Report done only when every item passes. If an item cannot be satisfied, tell the user which one and why; that is the only part of the checklist to surface.
 
-- Reproduce the failure when practical.
-- Read the complete error and stack before forming theories.
-- Inspect the actual code and runtime state.
-- State a falsifiable hypothesis and test it.
-- Prefer root-cause fixes over symptom suppression.
-- For behavioral bugs, prefer a failing regression test before the fix when practical.
-- For visual, exploratory, configuration, infrastructure, or integration issues, use the cheapest reliable verification method instead of forcing a unit-test harness.
-- If a change appears to fix the issue but the mechanism is unexplained, reverse or isolate it and investigate.
+## Stop signals
 
-See [`references/debugging.md`](references/debugging.md) for the detailed playbook.
+Stop and reconsider when you notice:
 
-### Before refactoring
-
-- Establish a known baseline first.
-- Separate behavior changes from structural cleanup when practical.
-- Use small, verifiable moves.
-- Refactor adjacent code only when it directly blocks the task or materially reduces risk.
-- Do not rebuild the house because you were asked to fix one window.
-
-See [`references/refactoring.md`](references/refactoring.md).
-
-### Before integrating with an external system
-
-- Treat external data as untrusted until validated.
-- Inspect the real contract: API, schema, CSV columns, database fields, version, or wire format.
-- Isolate mapping between their model and yours when that boundary is meaningful.
-- Decide timeout, retry, fallback, idempotency, and failure semantics explicitly.
-- Log enough at the boundary to diagnose failures without leaking secrets.
-
-See [`references/integrations.md`](references/integrations.md).
-
-### When writing tests
-
-- Test behavior and meaningful states, not implementation trivia.
-- Cover boundaries and failure modes that matter.
-- Heavy mocking is a signal to inspect coupling.
-- Prefer deterministic, maintainable tests over raw coverage percentage.
-- Use the right verification layer: unit, integration, end-to-end, browser, build, lint, type-check, or screenshot comparison.
-
-See [`references/testing.md`](references/testing.md).
-
-### When making an architecture decision
-
-- Optimize for current requirements and credible change, not imagined futures.
-- Prefer explicit data flow and small interfaces.
-- Keep domain knowledge separate from frameworks and transport details when useful.
-- Favor reversible choices where uncertainty is high.
-- Use a thin end-to-end tracer bullet before committing to a large design when feasible.
-
-See [`references/architecture.md`](references/architecture.md).
-
-### When changing a website or web application
-
-- Preserve the existing visual and interaction language unless redesign is requested.
-- Inspect current responsive behavior before adding breakpoints or layout rules.
-- Reuse the existing stack before adding another framework or UI library.
-- Verify rendered behavior, not just source code.
-- Check relevant desktop and mobile states.
-- Check browser console/network errors after meaningful frontend changes when tools allow.
-- Preserve accessibility, semantic HTML, keyboard behavior, and loading/error/empty states.
-- Treat URLs, APIs, schemas, CMS fields, CSV columns, and database fields as contracts: inspect, do not assume.
-- Avoid replacing working components just to make them stylistically cleaner.
-
-See [`references/web-development.md`](references/web-development.md).
-
-### When making a security decision
-
-- Minimize attack surface and privilege.
-- Default to validation, least privilege, and safe secret handling.
-- Never invent custom cryptography, authentication, or session mechanisms when established solutions exist.
-- Treat all external and cross-service input as untrusted.
-- Prefer well-maintained, documented security primitives over cleverness.
-
-See [`references/security.md`](references/security.md).
-
-### Before claiming done
-
-Use the verification appropriate to the task. Depending on the change, that may include tests, build, type-check, lint, browser inspection, screenshots, logs, an end-to-end run, or a targeted manual check.
-
-Do not claim success merely because code compiles or looks plausible.
-
-Ask:
-
-1. Did I verify the actual requested behavior?
-2. Did I preserve unrelated working behavior?
-3. Did I introduce duplicated knowledge?
-4. Can I explain why the change works?
-5. Did I leave avoidable rot in the code I touched?
-6. Is the decision reasonably reversible where it needs to be?
-7. **Did I change anything that was not necessary for this request?**
-
-## Anti-patterns
-
-Stop and reconsider when you see:
-
-- speculative abstractions for imagined future requirements
-- wholesale rewrites when a surgical change would work
-- new dependencies that duplicate the existing stack
-- dependency wrappers with no meaningful boundary or replacement value
-- swallowed errors or silent retries
-- unexplained sleeps, timing hacks, or magic constants used as fixes
-- copy-pasted business rules with multiple authorities
-- global mutable state without a clear owner
-- refactor + feature + unrelated cleanup in one patch
+- a rewrite where a surgical change would work
+- a new dependency that duplicates the standard library or existing stack
+- a wrapper around a library with no real boundary behind it
+- swallowed errors, silent retries, unexplained sleeps, or magic thresholds
+- a fix you cannot explain, or "it works now" without knowing why
+- a skipped test, suppressed warning, or TODO added to get green
+- feature, refactor, and unrelated cleanup mixed in one change
 - tests that only verify mocks
-- premature optimization without measurement
-- vendor-specific concepts leaking throughout domain code unnecessarily
-- visual changes declared complete without checking the rendered result
-- "works on my machine" used as a conclusion
-- scope expansion disguised as cleanup
+- polishing past the done criteria
+- a visual change declared done without seeing the rendered result
+- scope expansion presented as cleanup
 
-## Tone
-
-Be pragmatic, not dogmatic. Prefer evidence over authority, small reversible steps over heroic patches, and clear trade-offs over slogans.
-
-The goal is not to demonstrate knowledge of *The Pragmatic Programmer*. The goal is to produce software that is understandable, verifiable, maintainable, and easier to change.
+The goal is software that is understandable, verifiable, and easier to change, not a demonstration of knowing *The Pragmatic Programmer*. Pragmatism is judgment, not typing speed.

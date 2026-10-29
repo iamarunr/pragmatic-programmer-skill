@@ -1,5 +1,7 @@
 # Empirical Benchmark & Evaluation
 
+> **Scope:** each setup ran once per challenge and results were graded by hand, so differences may partly reflect run-to-run variation. These runs used an earlier version of the skill. The current `references/examples.md` describes these challenges' solutions, so they cannot fairly evaluate the current version.
+
 This document presents empirical A/B evaluations testing whether the **Pragmatic Programmer AI Skill** measurably prevents common coding-agent failure modes across two diverse software environments:
 1. **Benchmark #1:** Backend Systems & Algorithmic Invariants (`benchmark/`)
 2. **Benchmark #2:** Fullstack & Web Application Architecture (`benchmark-ui/`)
