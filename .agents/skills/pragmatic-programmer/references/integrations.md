@@ -28,6 +28,10 @@ Decide explicitly:
 
 Never retry silently or indefinitely.
 
+## Finish what you start
+
+The code that acquires a resource (connection, file handle, browser page, lock, subscription) releases it, on every path including errors. Prefer the language's scoped constructs (`finally`, `using`, `with`, `defer`) over remembering to clean up.
+
 ## Data safety
 
 - Treat external input as untrusted.
