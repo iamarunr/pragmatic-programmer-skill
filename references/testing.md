@@ -12,6 +12,10 @@ Choose the cheapest reliable verification that proves the requested behavior.
 - Build/config changes: build and runtime validation.
 - Bug fixes: regression test when practical.
 
+## Prove the test can fail
+
+A test that passes before the fix proves nothing. Run a new regression test against the unfixed code (or revert the fix briefly) and confirm it fails for the right reason. Tests that inject a clock must not also depend on the real one.
+
 ## Design for testability
 
 Code that is hard to test is usually too coupled. Prefer pure functions, injected dependencies at real boundaries, and explicit inputs and outputs. For logic with many valid inputs, consider property-based tests.

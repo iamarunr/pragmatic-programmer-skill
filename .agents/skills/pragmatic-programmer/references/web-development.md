@@ -26,6 +26,10 @@ When tools allow, verify relevant states in a browser and check:
 
 Use screenshots or visual comparison when that is the most reliable evidence.
 
+## Keep UI text true
+
+Help text, labels, empty states, and error messages describe behavior. When the behavior changes, search the UI for text that states the old rule and update it with the code.
+
 ## Treat data contracts as contracts
 
 Inspect rather than guess:

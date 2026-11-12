@@ -9,7 +9,7 @@ The goal is not to make an agent quote software-engineering philosophy. The goal
 ## 🚀 Quick Links
 * **[How to Use in Any Existing Repo](HOW_TO_USE.md)** — Step-by-step instructions and ready-to-use prompts for testing and fixing any codebase.
 * **[Empirical Benchmark Suite (BENCHMARK.md)](BENCHMARK.md)** — A/B comparison of agent behavior with vs. without the skill (one run per setup, graded by hand).
-* **[Full Skill Definition (SKILL.md)](SKILL.md)** — The 16 principles, codebase guardrails, playbook routing, done checklist, and stop signals.
+* **[Full Skill Definition (SKILL.md)](SKILL.md)** — The 17 principles, codebase guardrails, playbook routing, done checklist, and stop signals.
 * **[Core Constitution (CORE.md)](CORE.md)** — Compact rules intended for broader context and local models.
 
 ---
@@ -194,15 +194,15 @@ Guidance for delivering the same engineering philosophy through different agent/
 
 ## Core principles
 
-The skill encodes the core principles of *The Pragmatic Programmer* (2nd ed., David Thomas and Andrew Hunt) as decision-time behavior for coding agents. The same 16 principles appear in [`SKILL.md`](SKILL.md) and, condensed, in [`CORE.md`](CORE.md).
+The skill encodes the core principles of *The Pragmatic Programmer* (2nd ed., David Thomas and Andrew Hunt) as decision-time behavior for coding agents. The same 17 principles appear in [`SKILL.md`](SKILL.md) and, condensed, in [`CORE.md`](CORE.md).
 
 | Principle | What the agent does | Detail |
 |---|---|---|
 | Take responsibility | Reports problems, risks, and unverified work plainly, with a proposed fix | Done checklist |
 | Think about your work | Questions assumptions, including the request's approach | SKILL.md |
 | Knowledge portfolio | Checks installed versions and current docs instead of memory | SKILL.md |
-| DRY | One authoritative home for each rule, config value, schema, or doc | SKILL.md |
-| Orthogonality | Keeps changes from rippling into unrelated modules | `references/architecture.md` |
+| DRY | One authoritative home for each rule, config value, schema, or doc; updates every place that describes changed behavior | SKILL.md |
+| Orthogonality and decoupling | Keeps changes from rippling into unrelated modules; tell, don't ask; no shared mutable state | `references/architecture.md` |
 | Design by contract | States preconditions, postconditions, invariants; fails fast at boundaries | SKILL.md |
 | Program close to the domain | Uses the domain's language in names and abstractions | SKILL.md |
 | Reversibility | Adds seams only where boundaries are real | `references/architecture.md` |
@@ -210,12 +210,13 @@ The skill encodes the core principles of *The Pragmatic Programmer* (2nd ed., Da
 | Prototype to learn | Resolves uncertainty with throwaway experiments outside production code | `references/architecture.md` |
 | Good enough software | Derives done criteria from the request and stops when met | Done checklist |
 | Automate | Uses project scripts; scripts repeated steps; suggests CI rather than adding it | SKILL.md |
-| Test ruthlessly | Tests boundaries, bad input, failure paths; regression tests for bugs | `references/testing.md` |
-| No programming by coincidence | Explains why a fix works; never accepts "the error went away" | `references/debugging.md` |
+| Don't outrun your headlights | Takes small steps and gets feedback after each | SKILL.md |
+| Test ruthlessly | Tests boundaries, bad input, failure paths; regression tests that fail without the fix | `references/testing.md` |
+| No programming by coincidence | Explains why a fix works; never relies on clocks or orderings happening to agree | `references/debugging.md` |
 | No broken windows | Fixes or reports rot in touched code; never adds skipped tests or suppressed warnings | SKILL.md |
 | Refactor early and often | Makes a hard change easy first, as a separate step, within scope | `references/refactoring.md` |
 
-For existing codebases, the skill adds agent-specific guardrails: inspect before assuming, preserve before replacing, keep public contracts stable, use the existing stack first, control scope, and verify actual behavior.
+For existing codebases, the skill adds agent-specific guardrails: inspect before assuming, preserve before replacing, keep public contracts stable, use the existing stack first, account for existing state, control scope, and verify actual behavior.
 
 The most important rule for AI agents:
 

@@ -1,0 +1,1 @@
+Add the percentage drop to the price-alert email, so I can see at a glance how big the deal is.
